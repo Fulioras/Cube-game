@@ -1,0 +1,4 @@
+repository "Cube game@Mokyklos_project@cloud"
+  path "/"
+    br "/main"
+    co "/main"

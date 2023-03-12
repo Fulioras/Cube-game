@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+using UnityEngine.SceneManagement;
 
 public class Movement : MonoBehaviour
 {
@@ -12,13 +15,17 @@ public class Movement : MonoBehaviour
     public KeyCode Jump;
     public KeyCode Stop;
 
-    public int jumps;
+    private int extraJumps;
+    public int extraJumpsValue;
 
+    public Transform head;
+    public LayerMask whatIsFeet;
     public Transform groundCheckPoint;
     public float feetRadius;
     public LayerMask whatIsGround;
-    //public bool isGrounded;
+    private bool isGrounded;
 
+    public GameOverScreen GameOverScreen;
     public bool death;
     public LayerMask whatIsPlayer;
 
@@ -26,7 +33,13 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        extraJumps = extraJumpsValue;
         cube = GetComponent<Rigidbody2D>();
+    }
+
+    void FixedUpdate()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, feetRadius, whatIsGround);
     }
 
     // Update is called once per frame
@@ -48,29 +61,42 @@ public class Movement : MonoBehaviour
             cube.velocity = new Vector2(0, cube.velocity.y);
         }
 
-        if (Input.GetKey(Jump) && isGrounded())
+        if(isGrounded == true)
         {
-            jumps = 1;
+            extraJumps = extraJumpsValue;
+        }
+
+        if (Input.GetKeyDown(Jump) && extraJumps > 0)
+        {
+            extraJumps--;
             cube.velocity = new Vector2(cube.velocity.x, jumpPower);
-        } else  if (Input.GetKey(Stop))
+
+            //Debug.Log("1");
+
+        } else if (Input.GetKeyDown(Jump) && extraJumps == 0 && isGrounded == true)
+        {
+            cube.velocity = new Vector2(cube.velocity.x, jumpPower);
+
+            //Debug.Log("2");
+
+        } else if (Input.GetKey(Stop))
         {
             cube.velocity = new Vector2(cube.velocity.x/2, cube.velocity.y - jumpPower/50);
-        } else if(Input.GetKey(Jump) && jumps == 1)
-        {
-            jumps = 0;
-            cube.velocity = new Vector2(cube.velocity.x, jumpPower);
         }
     }
-
+    /*
     bool isGrounded()
     {
         return Physics2D.OverlapCircle(groundCheckPoint.position, feetRadius, whatIsGround);
-    }
+    }*/
 
-    void Die()
+    public void Die()
     {
 
-        cube.position = new Vector2(0, 0);
+        GameOverScreen.Setup();
+        //SceneManager.LoadScene(0);
+
+        //cube.position = new Vector2(0, 0);
     }
 
 }
